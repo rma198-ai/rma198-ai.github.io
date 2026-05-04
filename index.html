@@ -180,5 +180,68 @@
 
         document.querySelectorAll('section').forEach(s => observer.observe(s));
     </script>
+    <section id="game-container" style="margin-top: 50px; padding: 40px; background: #000; color: white; font-family: 'Courier New', Courier, monospace; border: 3px solid #CC0033; border-radius: 20px; max-width: 700px; margin-left: auto; margin-right: auto;">
+    <div style="text-align: center;">
+        <h1 style="color: #CC0033; margin-bottom: 5px;">THE WEALTH SPRINT</h1>
+        <p style="color: #aaa; font-size: 0.8rem;">MISSION: REACH $1,000,000</p>
+        
+        <div style="background: #111; padding: 20px; border-radius: 10px; text-align: left; margin-bottom: 20px;">
+            <label>Monthly Contribution: $<span id="save-val">500</span></label>
+            <input type="range" id="monthly-save" min="100" max="5000" step="100" value="500" style="width: 100%; accent-color: #CC0033; margin-bottom: 20px;" oninput="updateGame()">
+
+            <label>Investment Strategy: <span id="strat-name" style="color: #CC0033;">Steady Index (7%)</span></label>
+            <input type="range" id="roi" min="1" max="15" step="1" value="7" style="width: 100%; accent-color: #CC0033;" oninput="updateGame()">
+        </div>
+
+        <div style="background: #222; height: 40px; border-radius: 20px; position: relative; overflow: hidden; margin-bottom: 10px;">
+            <div id="progress-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #600, #CC0033); transition: 0.5s ease-out;"></div>
+            <div style="position: absolute; top: 10px; right: 20px; font-weight: bold;">$1M</div>
+        </div>
+
+        <div id="game-stats" style="padding: 20px; background: #111; border-radius: 10px;">
+            <h2 id="years-to-win" style="margin: 0; font-size: 2.5rem;">--</h2>
+            <p style="margin: 5px 0;">YEARS TO HIT THE MILLION</p>
+            <div id="rank-badge" style="display: inline-block; padding: 5px 15px; background: #CC0033; border-radius: 5px; font-weight: bold; margin-top: 10px;">RANK: ROOKIE</div>
+        </div>
+    </div>
+</section>
+
+<script>
+function updateGame() {
+    const monthly = parseFloat(document.getElementById('monthly-save').value);
+    const rate = parseFloat(document.getElementById('roi').value) / 100 / 12;
+    const target = 1000000;
+    
+    document.getElementById('save-val').innerText = monthly.toLocaleString();
+    
+    // Update Strategy Name based on ROI
+    let strat = "Savings Account (1%)";
+    if(rate*12 > 0.04) strat = "Bonds (5%)";
+    if(rate*12 > 0.08) strat = "Stock Market (10%)";
+    if(rate*12 > 0.12) strat = "Aggressive Growth (14%)";
+    document.getElementById('strat-name').innerText = strat + " (" + (rate*12*100).toFixed(0) + "%)";
+
+    // Calculate months to reach target: n = log(1 + (r*target/P)) / log(1 + r)
+    let months = Math.log(1 + (rate * target / monthly)) / Math.log(1 + rate);
+    let years = (months / 12).toFixed(1);
+
+    // Update Progress Bar (Visualizing 40 years as 100%)
+    let progress = Math.min(100, (40 / years) * 100);
+    document.getElementById('progress-bar').style.width = progress + "%";
+
+    // Update Text
+    document.getElementById('years-to-win').innerText = years + " YEARS";
+    
+    // Update Rank
+    let rank = "ROOKIE";
+    if (years < 30) rank = "SAVVY INVESTOR";
+    if (years < 20) rank = "FINANCIAL PRO";
+    if (years < 12) rank = "WEALTH TYCOON";
+    document.getElementById('rank-badge').innerText = "RANK: " + rank;
+}
+
+// Run once on load
+updateGame();
+</script>
 </body>
 </html>
